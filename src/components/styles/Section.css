@@ -1,0 +1,11 @@
+#section {
+    background-color: #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#section > div {
+    overflow-y: auto;
+    height: 75vh;
+    margin: 10px;
+}

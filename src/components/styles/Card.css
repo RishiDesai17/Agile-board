@@ -1,0 +1,16 @@
+#card {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#card > div {
+    height: 100px;
+    background-color: white;
+    width: 100%;
+    border-radius: 3px
+}
+
+#cardContainer {
+    margin: 5px;
+}

@@ -1,0 +1,28 @@
+#board {
+    display: flex;
+    justify-content: center;
+}
+
+#grid {
+    display: grid;
+    grid-row-gap: 4px;
+    grid-template-columns: 310px;
+    grid-auto-flow: column;
+    overflow-x: auto;
+    max-width: 95vw;
+}
+
+.section-containers {
+    width: 300px;
+    margin: 5px;
+}
+
+@media screen and (max-width: 320px) {
+    #grid {
+        grid-template-columns: calc(96vw + 10px)
+    }
+
+    .section-containers {
+        width: 96vw;
+    }
+}
