@@ -1,11 +1,11 @@
 import './styles/Card.css';
 
-const Card = ({ id }) => {
+const Card = ({ task }) => {
     return (
         <div id="card">
             <div>
                 <div id="cardContainer">
-                    <p>{id}</p>
+                    <p>{task}</p>
                 </div>
             </div>
         </div>
