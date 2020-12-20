@@ -1,19 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Section from '../components/Section';
+import { db } from '../firebase';
 import { DragDropContext } from 'react-beautiful-dnd';
 import './styles/Board.css';
 
 const INIT_STATE = {
-    assigned: [{ task: 'abc' }, { task: 'bcd' }, { task: 'cde' }],
-    ongoing: [{ task: 'def' }, { task: 'efg' }, { task: 'fgh' }],
-    completed: [{ task: 'ghi' }, { task: 'hij' }, { task: 'jkl' }],
-    verified: [{ task: 'klm' }, { task: 'lmn' }, { task: 'mno' }]
+    assigned: [],
+    ongoing: [],
+    completed: [],
+    verified: []
 }
 
 const sectionNames = Object.keys(INIT_STATE)
 
 const Board = () => {
     const [sections, setSections] = useState(INIT_STATE);
+
+    useEffect(() => {
+        init()
+    }, [])
+
+    const init = async() => {
+        try{
+            const cardsMapper = {}
+            await Promise.all(sectionNames.map(async section => {
+                cardsMapper[section] = await fetchSectionCards(section)
+            }))
+            setSections(cardsMapper)
+        }
+        catch(err) {
+            console.log(err)
+        }
+    }
+
+    const fetchSectionCards = async section => {
+        try {
+            const querySnapshot = await db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`).get()
+            const sectionCards = querySnapshot.docs.map(doc => {
+                return doc.data()
+            })
+            console.log(sectionCards)
+            return sectionCards
+        }
+        catch(err) {
+            console.log(err)
+        }
+    }
 
     const handleOnDragEnd = result => {
         const { source, destination } = result
