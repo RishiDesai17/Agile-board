@@ -15,6 +15,7 @@ const sectionNames = Object.keys(INIT_STATE)
 
 const Board = () => {
     const [sections, setSections] = useState(INIT_STATE);
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         init()
@@ -27,6 +28,7 @@ const Board = () => {
                 cardsMapper[section] = await fetchSectionCards(section)
             }))
             setSections(cardsMapper)
+            setLoading(false)
         }
         catch(err) {
             console.log(err)
@@ -35,16 +37,21 @@ const Board = () => {
 
     const fetchSectionCards = async section => {
         try {
-            const querySnapshot = await db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`).get()
-            const sectionCards = querySnapshot.docs.map(doc => {
-                return doc.data()
-            })
-            console.log(sectionCards)
-            return sectionCards
+            const documentsSnapshot = await db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`).limit(10).get()
+            return documentsSnapshot.docs
         }
         catch(err) {
             console.log(err)
         }
+    }
+
+    const addCards = (sectionName, cards) => {
+        setSections(sections => {
+            return {
+                ...sections,
+                [sectionName]: [...sections[sectionName], ...cards]
+            }
+        })
     }
 
     const handleOnDragEnd = result => {
@@ -74,7 +81,13 @@ const Board = () => {
                     <DragDropContext onDragEnd={handleOnDragEnd}>
                         {sectionNames.map((sectionName, sectionIndex) => (
                             <div className="section-containers">
-                                <Section sectionName={sectionName} sectionIndex={sectionIndex} cards={sections[sectionName]} />
+                                <Section 
+                                    sectionName={sectionName} 
+                                    sectionIndex={sectionIndex} 
+                                    cards={sections[sectionName]} 
+                                    addCards={addCards}
+                                    loading={loading}
+                                />
                             </div>
                         ))}
                     </DragDropContext>

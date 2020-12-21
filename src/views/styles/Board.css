@@ -5,7 +5,6 @@
 
 #grid {
     display: grid;
-    grid-row-gap: 4px;
     grid-template-columns: 310px;
     grid-auto-flow: column;
     overflow-x: auto;

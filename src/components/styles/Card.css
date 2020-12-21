@@ -8,9 +8,30 @@
     height: 100px;
     background-color: white;
     width: 100%;
-    border-radius: 3px
+    border-radius: 3px;
+    border: 1px solid #B8B8B8;
 }
 
 #cardContainer {
-    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.cardLayer {
+    display: flex;
+    flex-direction: row;
+    min-height: 50px;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.flex-end {
+    justify-content: flex-end;
+}
+
+.word-break {
+    word-break: break-all;
 }
