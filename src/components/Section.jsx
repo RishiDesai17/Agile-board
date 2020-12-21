@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Card from './Card';
+import ActivityIndicator from './ActivityIndicator';
 import { db } from '../firebase';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import './styles/Section.css';
@@ -34,7 +35,7 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
             <h4>{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</h4>
             {loading ? 
                 <div id="infoContainer">
-                    <p>Loading...</p>
+                    <ActivityIndicator />
                 </div>
             : 
                 <div>
@@ -61,7 +62,7 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
                                         loadMoreButton ? 
                                             <button onClick={loadMoreCards}>Load More</button> 
                                         : 
-                                            <p>Loading...</p>
+                                            <ActivityIndicator />
                                         )
                                     }
                                 </div>
