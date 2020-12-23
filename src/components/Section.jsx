@@ -16,11 +16,14 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
 
     const loadMoreCards = async() => {
         setLoadMoreButton(false)
-        const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`).orderBy("updatedAt")
+        console.log(window[`lastDoc ${sectionName}`])
+        const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`).orderBy("createdAt")
         
         const documentsSnapshot = await query.startAfter(window[`lastDoc ${sectionName}`]).limit(10).get({ source: 'cache' })
         let documents = documentsSnapshot.docs
         console.log('cache loadMore')
+        console.log(documents)
+        console.log(cards)
 
         if(documents.length < 10) {
             console.log('server loadMore')
@@ -31,11 +34,13 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
             
             const newDocumentsSnapshot = await query.startAfter(lastDoc).limit(10 - documents.length).get()
             const newDocs = newDocumentsSnapshot.docs
+            console.log(newDocs)
             documents = documents.concat(newDocs)
         }
 
         if(documents.length !== 0) {
             addCards(sectionName, documents)
+            console.log("x")
             window[`lastDoc ${sectionName}`] = documents[documents.length - 1]
         }
 

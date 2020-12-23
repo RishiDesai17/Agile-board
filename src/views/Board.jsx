@@ -27,15 +27,15 @@ const Board = () => {
             await Promise.all(sectionNames.map(async section => {
                 let cards;
                 const lastDoc = await db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`)
-                    .orderBy("updatedAt", "desc")
+                    .orderBy("createdAt")
                     .limit(1)
                     .get({ source: 'cache' })
+                console.log(lastDoc)
 
                 if(lastDoc.empty) {
                     cards = await fetchSectionCards({ section, fromCache: false })
                 }
                 else {
-                    await refreshCache(section, lastDoc.docs[0])
                     cards = await fetchSectionCards({ section, fromCache: true })
                 }
                 
@@ -52,35 +52,26 @@ const Board = () => {
 
     const fetchSectionCards = async({ section, fromCache }) => {
         try {
-            const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`).orderBy("updatedAt").limit(10)
+            const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`).orderBy("createdAt")
             let documents;
             if(fromCache) {
                 console.log('cache')
-                const documentsSnapshot = await query.get({ source: 'cache' })
+                const documentsSnapshot = await query.limit(10).get({ source: 'cache' })
                 documents = documentsSnapshot.docs
+                
+                if(documents.length < 10) {
+                    console.log("newDocs server", section)
+                    const newDocs = await query.startAfter(documents[documents.length - 1]).limit(10 - documents.length).get()
+                    documents.concat(newDocs.docs)
+                }
             }
             else {
                 console.log('server')
-                const documentsSnapshot = await query.get()
+                const documentsSnapshot = await query.limit(10).get()
                 documents = documentsSnapshot.docs
             }
             window[`lastDoc ${section}`] = documents[documents.length - 1]
             return documents
-        }
-        catch(err) {
-            console.log(err)
-        }
-    }
-
-    const refreshCache = async (section, lastDoc) => {
-        console.log("refresh cache", section, lastDoc)
-        try {
-            const documentsSnapshot = await db.collection(`projects/kGS550UTeB1nYSQBYzPf/${section}`)
-                .orderBy("updatedAt")
-                .endAt(lastDoc)
-                .where("updatedAt", ">", new Date(localStorage.lastFetch))
-                .get();
-            console.log(documentsSnapshot.docs)
         }
         catch(err) {
             console.log(err)

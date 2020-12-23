@@ -13,7 +13,9 @@ const Card = ({ cardData }) => {
             initials = splittedCreatedBy[0][0] + splittedCreatedBy[1][0]
         }
         return (
-            <div>{initials.toUpperCase()}</div>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: 'red', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div>{initials.toUpperCase()}</div>
+            </div>
         )
     }
 
@@ -26,7 +28,7 @@ const Card = ({ cardData }) => {
         return `${weekDay}, ${monthName} ${date} ${year}`
     }, [])
 
-    const { task, deadline, category, createdBy } = cardData
+    const { task, category, createdAt, createdBy } = cardData
 
     return (
         <div id="card">
@@ -37,7 +39,7 @@ const Card = ({ cardData }) => {
                             <b>{task}</b>
                         </div>
                         <div className="word-break">
-                            {getFormattedDate(deadline.seconds)}
+                            {getFormattedDate(createdAt.seconds)}
                         </div>
                     </div>
                     <div className="cardLayer space-between">
