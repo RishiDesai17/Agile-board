@@ -16,17 +16,34 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
 
     const loadMoreCards = async() => {
         setLoadMoreButton(false)
-        const documentsSnapshot = await db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`)
-            .orderBy("updatedAt")
-            .startAfter(cards[cards.length - 1])
-            .limit(10)
-            .get()
-        if(documentsSnapshot.docs.length > 0) {
-            addCards(sectionName, documentsSnapshot.docs)
-            setLoadMoreButton(true)
+        const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`).orderBy("updatedAt")
+        
+        const documentsSnapshot = await query.startAfter(window[`lastDoc ${sectionName}`]).limit(10).get({ source: 'cache' })
+        let documents = documentsSnapshot.docs
+        console.log('cache loadMore')
+
+        if(documents.length < 10) {
+            console.log('server loadMore')
+            let lastDoc = window[`lastDoc ${sectionName}`]
+            if(documents.length > 0) {
+                lastDoc = documents[documents.length - 1]
+            }
+            
+            const newDocumentsSnapshot = await query.startAfter(lastDoc).limit(10 - documents.length).get()
+            const newDocs = newDocumentsSnapshot.docs
+            documents = documents.concat(newDocs)
+        }
+
+        if(documents.length !== 0) {
+            addCards(sectionName, documents)
+            window[`lastDoc ${sectionName}`] = documents[documents.length - 1]
+        }
+
+        if(documents.length < 10) {
+            setLoadMoreButton(null)
         }
         else {
-            setLoadMoreButton(null)
+            setLoadMoreButton(true)
         }
     }
 
@@ -37,40 +54,39 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
                 <div id="infoContainer">
                     <ActivityIndicator />
                 </div>
-            : 
-                <div>
-                    <Droppable droppableId={sectionIndex.toString()}>
-                        {provided => (
-                            <div {...provided.droppableProps} ref={provided.innerRef} style={{ height: '100%' }}>
-                                {cards.length === 0 ? 
-                                    <div id="infoContainer">
-                                        <p>Nothing to see here</p>
-                                    </div> 
-                                : 
-                                    cards.map((card, index) => (
-                                        <Draggable draggableId={sectionName + " " + index.toString()} index={index} key={index}>
-                                            {provided => (
-                                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                    <Card cardData={card.data()} />
-                                                </div>
-                                            )}
-                                        </Draggable>
+            :
+                <Droppable droppableId={sectionIndex.toString()}>
+                    {provided => (
+                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                            {cards.length === 0 ? 
+                                <div id="infoContainer">
+                                    <p>Nothing to see here</p>
+                                </div> 
+                            : 
+                                cards.map((card, index) => (
+                                    <Draggable draggableId={sectionName + " " + index.toString()} index={index} key={index}>
+                                        {provided => (
+                                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                {/* {console.log(sectionName, card.id)} */}
+                                                <Card cardData={card.data()} />
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                )
+                            )}
+                            <div>
+                                {(cards.length > 0 && loadMoreButton !== null) && (
+                                    loadMoreButton ? 
+                                        <button onClick={loadMoreCards}>Load More</button> 
+                                    : 
+                                        <ActivityIndicator />
                                     )
-                                )}
-                                <div>
-                                    {(cards.length > 0 && loadMoreButton !== null) && (
-                                        loadMoreButton ? 
-                                            <button onClick={loadMoreCards}>Load More</button> 
-                                        : 
-                                            <ActivityIndicator />
-                                        )
-                                    }
-                                </div>
-                                {provided.placeholder}
+                                }
                             </div>
-                        )}
-                    </Droppable>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             }
         </div>
     )

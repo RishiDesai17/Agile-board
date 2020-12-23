@@ -6,6 +6,7 @@
 
 #section > div {
     overflow-y: auto;
+    overflow-x: hidden;
     height: 75vh;
     margin: 10px;
 }
