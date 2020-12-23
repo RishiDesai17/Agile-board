@@ -40,7 +40,6 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
 
         if(documents.length !== 0) {
             addCards(sectionName, documents)
-            console.log("x")
             window[`lastDoc ${sectionName}`] = documents[documents.length - 1]
         }
 
