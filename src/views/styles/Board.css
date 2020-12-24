@@ -1,6 +1,15 @@
+#titleBar {
+    display: flex;
+    justify-content: space-between;
+}
+
 #board {
     display: flex;
     justify-content: center;
+}
+
+#board > div {
+    max-width: 95vw;
 }
 
 #grid {
@@ -8,12 +17,21 @@
     grid-template-columns: 310px;
     grid-auto-flow: column;
     overflow-x: auto;
-    max-width: 95vw;
 }
 
 .section-containers {
     width: 300px;
     margin: 5px;
+}
+
+#saveButton {
+    position: absolute;
+    right: 35px;
+    top: 20px;
+}
+
+.centerSelf {
+    align-self: center;
 }
 
 @media screen and (max-width: 320px) {

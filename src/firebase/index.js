@@ -11,4 +11,4 @@ db.enablePersistence().catch(err => {
     console.log(err)
 });
 
-export { db }
+export { db, firebase }

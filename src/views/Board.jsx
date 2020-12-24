@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import Section from '../components/Section';
+import ActivityIndicator from '../components/ActivityIndicator';
+import AddTask from '../components/AddTask';
 import { db } from '../firebase';
 import { DragDropContext } from 'react-beautiful-dnd';
 import './styles/Board.css';
-import ActivityIndicator from '../components/ActivityIndicator';
 
 const INIT_STATE = {
     assigned: [],
@@ -64,12 +65,6 @@ const Board = () => {
                 console.log('cache')
                 const documentsSnapshot = await query.limit(10).get({ source: 'cache' })
                 documents = documentsSnapshot.docs
-                
-                if(documents.length < 10) {
-                    console.log("newDocs server", section)
-                    const newDocs = await query.startAfter(documents[documents.length - 1]).limit(10 - documents.length).get()
-                    documents.concat(newDocs.docs)
-                }
             }
             else {
                 console.log('server')
@@ -98,6 +93,7 @@ const Board = () => {
 
     const handleOnDragEnd = result => {
         const { source, destination } = result
+        if(!destination) return   // if a card is dragged out of bounds
 
         const sourceSection = sectionNames[source.droppableId]
         const destinationSection = sectionNames[destination.droppableId]
@@ -121,7 +117,6 @@ const Board = () => {
     }
 
     const trackChanges = (card, destinationSection) => {
-        if(card.sectionName === destinationSection) return
         const shiftedCard = cardShiftMapper.current[card.id]
         
         if(shiftedCard) {
@@ -133,15 +128,15 @@ const Board = () => {
             }
         }
         else {
-            cardShiftMapper.current[card.id] = {
-                source: card.sectionName,
-                destination: destinationSection,
-                data: {
-                    ...card.data()
+            if(destinationSection !== card.sectionName) {
+                cardShiftMapper.current[card.id] = {
+                    source: card.sectionName,
+                    destination: destinationSection,
+                    data: card.data()
                 }
             }
         }
-
+        
         if(Object.keys(cardShiftMapper.current).length > 0) {
             setShowSaveButton(true)
         }
@@ -156,9 +151,7 @@ const Board = () => {
             const cardIDs = Object.keys(cardShiftMapper.current)
             await Promise.all(cardIDs.map(cardID => {
                 const card = cardShiftMapper.current[cardID]
-                db.collection(`projects/kGS550UTeB1nYSQBYzPf/${card.destination}`).add({
-                    ...card.data
-                })
+                db.collection(`projects/kGS550UTeB1nYSQBYzPf/${card.destination}`).add(card.data)
                 db.collection(`projects/kGS550UTeB1nYSQBYzPf/${card.source}`).doc(cardID).delete()
             }))
             setShowSaveButton(false)
@@ -170,27 +163,36 @@ const Board = () => {
 
     return (
         <>
-            <h1>Board</h1>
-            {showSaveButton === null ? <ActivityIndicator /> : showSaveButton && (
-                <div style={{ position: 'absolute', right: 25, top: 25 }}>
-                    <button onClick={save}>SAVE</button>
-                </div>
-            )}
             <div id="board">
-                <div id="grid">
-                    <DragDropContext onDragEnd={handleOnDragEnd}>
-                        {sectionNames.map((sectionName, sectionIndex) => (
-                            <div className="section-containers">
-                                <Section 
-                                    sectionName={sectionName} 
-                                    sectionIndex={sectionIndex} 
-                                    cards={sections[sectionName]} 
-                                    addCards={addCards}
-                                    loading={loading}
-                                />
-                            </div>
-                        ))}
-                    </DragDropContext>
+                <div>
+                    <div id="titleBar">
+                        <h1>Board</h1>
+                        <div className="centerSelf">
+                            {showSaveButton === null ?
+                                <ActivityIndicator />
+                            :
+                                showSaveButton && <button onClick={save}>SAVE</button>
+                            }
+                        </div>
+                        <div className="centerSelf">
+                            <AddTask setSections={setSections} />
+                        </div>
+                    </div>
+                    <div id="grid">
+                        <DragDropContext onDragEnd={handleOnDragEnd}>
+                            {sectionNames.map((sectionName, sectionIndex) => (
+                                <div className="section-containers">
+                                    <Section 
+                                        sectionName={sectionName} 
+                                        sectionIndex={sectionIndex} 
+                                        cards={sections[sectionName]} 
+                                        addCards={addCards}
+                                        loading={loading}
+                                    />
+                                </div>
+                            ))}
+                        </DragDropContext>
+                    </div>
                 </div>
             </div>
         </>
