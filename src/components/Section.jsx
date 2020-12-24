@@ -9,10 +9,24 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
     const [loadMoreButton, setLoadMoreButton] = useState(null)
 
     useEffect(() => {
-        if(cards.length >= 10) {
-            setLoadMoreButton(true)
+        if(!loading){
+            checkForUpdates()
         }
     }, [loading])
+
+    const checkForUpdates = async() => {
+        if(cards.length < 10) {
+            setLoadMoreButton(false)
+            const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`).orderBy("createdAt")
+            const newDocs = await checkForNewCards(query, window[`lastDoc ${sectionName}`], cards)
+            addCards(sectionName, newDocs)
+            if(cards.length + newDocs.length < 10){
+                setLoadMoreButton(null)
+                return
+            }
+        }
+        setLoadMoreButton(true)
+    }
 
     const loadMoreCards = async() => {
         setLoadMoreButton(false)
@@ -31,10 +45,7 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
             if(documents.length > 0) {
                 lastDoc = documents[documents.length - 1]
             }
-            
-            const newDocumentsSnapshot = await query.startAfter(lastDoc).limit(10 - documents.length).get()
-            const newDocs = newDocumentsSnapshot.docs
-            console.log(newDocs)
+            const newDocs = await checkForNewCards(query, lastDoc, documents)
             documents = documents.concat(newDocs)
         }
 
@@ -49,6 +60,13 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
         else {
             setLoadMoreButton(true)
         }
+    }
+
+    const checkForNewCards = async(query, lastDoc, documents) => {
+        const newDocumentsSnapshot = await query.startAfter(lastDoc).limit(10 - documents.length).get()
+        const newDocs = newDocumentsSnapshot.docs
+        console.log(newDocs)
+        return newDocs
     }
 
     return (
