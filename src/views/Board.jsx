@@ -19,7 +19,7 @@ const Board = () => {
     const [sections, setSections] = useState(INIT_STATE);
     const [loading, setLoading] = useState(true)
     const cardShiftMapper = useRef({})
-    const [showSaveButton, setShowSaveButton] = useState(false)
+    const [showSaveButton, setShowSaveButton] = useState(false) // true -> show button, false -> hide button, null -> activity indicator
 
     useEffect(() => {
         init()
@@ -34,7 +34,6 @@ const Board = () => {
                     .orderBy("createdAt")
                     .limit(1)
                     .get({ source: 'cache' })
-                console.log(lastDoc)
 
                 if(lastDoc.empty) {
                     cards = await fetchSectionCards({ section, fromCache: false })
@@ -71,6 +70,9 @@ const Board = () => {
                 const documentsSnapshot = await query.limit(10).get()
                 documents = documentsSnapshot.docs
             }
+            /*  Preserve last doc for each section so that if load more is pressed after some card from other section
+                is shifted to last position in a given section, we dont lose track.
+            */
             window[`lastDoc ${section}`] = documents[documents.length - 1]
             return documents
         }
@@ -166,12 +168,16 @@ const Board = () => {
             <div id="board">
                 <div>
                     <div id="titleBar">
-                        <h1>Board</h1>
+                        <h1 className="interFont indigoBlue" id="title">Board</h1>
                         <div className="centerSelf">
                             {showSaveButton === null ?
                                 <ActivityIndicator />
                             :
-                                showSaveButton && <button onClick={save}>SAVE</button>
+                                showSaveButton && <div id="saveButtonContainer" onClick={save}>
+                                    <div id="saveButton">
+                                        <b className="interFont indigoBlue">SAVE</b>
+                                    </div>
+                                </div>
                             }
                         </div>
                         <div className="centerSelf">

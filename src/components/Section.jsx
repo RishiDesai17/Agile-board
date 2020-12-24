@@ -6,7 +6,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import './styles/Section.css';
 
 const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
-    const [loadMoreButton, setLoadMoreButton] = useState(null)
+    const [loadMoreButton, setLoadMoreButton] = useState(false)  // true -> button shown, false -> button not shown, null -> activity indicator
 
     useEffect(() => {
         if(!loading){
@@ -15,13 +15,14 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
     }, [loading])
 
     const checkForUpdates = async() => {
-        if(cards.length < 10) {
-            setLoadMoreButton(false)
+        if(cards.length < 10) {   // if cards received from cache are lesser than 10, check if any new cards are there in server
+            setLoadMoreButton(null)
             const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`).orderBy("createdAt")
             const newDocs = await checkForNewCards(query, window[`lastDoc ${sectionName}`], cards)
             addCards(sectionName, newDocs)
+            // if after getting new cards, the total is less than 10, there are no more docs. The load more button is not shown
             if(cards.length + newDocs.length < 10){
-                setLoadMoreButton(null)
+                setLoadMoreButton(false)
                 return
             }
         }
@@ -29,18 +30,13 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
     }
 
     const loadMoreCards = async() => {
-        setLoadMoreButton(false)
-        console.log(window[`lastDoc ${sectionName}`])
+        setLoadMoreButton(null)
         const query = db.collection(`projects/kGS550UTeB1nYSQBYzPf/${sectionName}`).orderBy("createdAt")
         
         const documentsSnapshot = await query.startAfter(window[`lastDoc ${sectionName}`]).limit(10).get({ source: 'cache' })
         let documents = documentsSnapshot.docs
-        console.log('cache loadMore')
-        console.log(documents)
-        console.log(cards)
 
         if(documents.length < 10) {
-            console.log('server loadMore')
             let lastDoc = window[`lastDoc ${sectionName}`]
             if(documents.length > 0) {
                 lastDoc = documents[documents.length - 1]
@@ -55,23 +51,28 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
         }
 
         if(documents.length < 10) {
-            setLoadMoreButton(null)
+            setLoadMoreButton(false)
         }
         else {
             setLoadMoreButton(true)
         }
     }
 
-    const checkForNewCards = async(query, lastDoc, documents) => {
-        const newDocumentsSnapshot = await query.startAfter(lastDoc).limit(10 - documents.length).get()
+    const checkForNewCards = async(query, lastDoc, documents) => {  // if there are new cards load only (10 - documents.length) to not exceed multiples of 10
+        let newDocumentsSnapshot
+        if(lastDoc) {
+            newDocumentsSnapshot = await query.startAfter(lastDoc).limit(10 - documents.length).get()
+        }
+        else {
+            newDocumentsSnapshot = await query.limit(10 - documents.length).get()
+        }
         const newDocs = newDocumentsSnapshot.docs
-        console.log(newDocs)
         return newDocs
     }
 
     return (
         <div id="section">
-            <h4>{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</h4>
+            <h4 className="interFont indigoBlue" id="sectionName">{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</h4>
             {loading ? 
                 <div id="infoContainer">
                     <ActivityIndicator />
@@ -82,14 +83,13 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
                         <div {...provided.droppableProps} ref={provided.innerRef}>
                             {cards.length === 0 ? 
                                 <div id="infoContainer">
-                                    <p>Nothing to see here</p>
+                                    <p className="interFont">Nothing to see here</p>
                                 </div> 
                             : 
                                 cards.map((card, index) => (
                                     <Draggable draggableId={sectionName + " " + index.toString()} index={index} key={index}>
                                         {provided => (
                                             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                {/* {console.log(sectionName, card.id)} */}
                                                 <Card cardData={card.data()} />
                                             </div>
                                         )}
@@ -97,9 +97,13 @@ const Section = ({ sectionName, sectionIndex, cards, addCards, loading }) => {
                                 )
                             )}
                             <div>
-                                {(cards.length > 0 && loadMoreButton !== null) && (
-                                    loadMoreButton ? 
-                                        <button onClick={loadMoreCards}>Load More</button> 
+                                {(cards.length > 0 && loadMoreButton !== false) && (
+                                    loadMoreButton !== null ?
+                                        <div id="loadMoreContainer">
+                                            <div id="loadMoreButton" onClick={loadMoreCards}>
+                                                <b className="interFont" id="loadMoreText">Load More</b>
+                                            </div>
+                                        </div>
                                     : 
                                         <ActivityIndicator />
                                     )

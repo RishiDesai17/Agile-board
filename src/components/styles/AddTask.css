@@ -1,3 +1,15 @@
+#addTaskButtonContainer {
+    width: 100px;
+    height: 35px;
+    background-color: #E8E8E8;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#addTaskButton {
+    padding-top: 5px;
+}
+
 form {
     display: flex;
     flex-direction: column;

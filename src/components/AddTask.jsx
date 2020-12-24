@@ -43,7 +43,11 @@ const AddTask = ({ setSections }) => {
 
     return (
         <div>
-            <button onClick={() => setShowModal(true)}>+ Add Task</button>
+            <div id="addTaskButtonContainer" onClick={() => setShowModal(true)}>
+                <div id="addTaskButton">
+                    <b className="interFont indigoBlue">+ Add Task</b>
+                </div>
+            </div>
             <Modal open={showModal} onClose={() => setShowModal(false)}>
                 <form onSubmit={submit}>
                     <div>

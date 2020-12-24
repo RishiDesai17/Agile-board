@@ -24,6 +24,29 @@
     min-height: 50px;
 }
 
+#initialsContainer {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #0D4F8B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#initials {
+    color: white;
+}
+
+#date {
+    color: #393939;
+    font-size: 15px;
+}
+
+#category {
+    margin-top: 4px;
+}
+
 .space-between {
     justify-content: space-between;
 }

@@ -1,6 +1,26 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap'); */
-/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap');
 
 .App {
     text-align: center;
+}
+
+.interFont {
+    font-family: 'Inter', sans-serif;
+}
+
+.indigoBlue {
+    color: #0D4F8B;    
+}
+
+::-webkit-scrollbar {
+    width: 0.4em;
+    height: 0.4em;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: #7285A5;
+}
+  
+::-webkit-scrollbar-track {
+    background: #b8c0c8;
 }

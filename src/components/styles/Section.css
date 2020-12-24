@@ -1,3 +1,7 @@
+#sectionName {
+    font-weight: 600;
+}
+
 #section {
     background-color: #E8E8E8;
     border-radius: 4px;
@@ -15,4 +19,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#loadMoreContainer {
+    display: flex;
+    justify-content: center;
+}
+
+#loadMoreButton {
+    width: 100px;
+    height: 27px;
+    background-color: #777;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#loadMoreText {
+    color: white;
+    font-size: 13px;
 }

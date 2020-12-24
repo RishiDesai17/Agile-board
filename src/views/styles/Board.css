@@ -3,6 +3,22 @@
     justify-content: space-between;
 }
 
+#title {
+    font-weight: 500;
+}
+
+#saveButtonContainer {
+    background-color: #E8E8E8;
+    border-radius: 3px;
+    cursor: pointer;
+    height: 35px;
+    width: 55px;
+}
+
+#saveButton {
+    padding-top: 5px;
+}
+
 #board {
     display: flex;
     justify-content: center;
@@ -22,12 +38,6 @@
 .section-containers {
     width: 300px;
     margin: 5px;
-}
-
-#saveButton {
-    position: absolute;
-    right: 35px;
-    top: 20px;
 }
 
 .centerSelf {
